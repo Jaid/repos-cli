@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "keywords": [
-  ],
+  "keywords": [],
   "author": "Jaid <jaid.jsx@gmail.com> (https://github.com/Jaid)",
   "homepage": "https://github.com/Jaid/webpack-config-factory",
   "funding": "https://github.com/sponsors/jaid",
@@ -27,6 +26,7 @@
     "yargs": "^17.7.2"
   },
   "devDependencies": {
+    "@types/yargs": "^17.0.32",
     "eslint-config-jaid": "^8.18.1",
     "globby": "^14.0.0",
     "tsconfig-jaid-node": "^6.1.1",

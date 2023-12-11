@@ -3,16 +3,16 @@ import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
 import * as lodash from 'lodash-es'
 
-import {chalkifyPath} from '~/lib/chalk.js'
 import {Finder} from '~/lib/Finder.js'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
 
-export const command = `list`
-export const description = `load tasks from a YAML file`
+export const command = `find <needle>`
+export const description = `finds a single repo`
 export const builder = (argv: Argv) => {
   return argv
-    .options({
+    .positional(`needle`, {
+      type: `string`,
     })
 }
 
@@ -24,8 +24,6 @@ export const handler = async (args: GlobalArgs & Args) => {
   for (const glob of lodash.toArray(args.glob)) {
     finder.addGlobSource(glob)
   }
-  const repoFolders = await finder.getAllRepos()
-  for (const repoFolder of repoFolders) {
-    console.log(chalkifyPath(repoFolder))
-  }
+  const repoFolder = await finder.findSingle(args.needle!)
+  console.log(repoFolder.toColorString())
 }
