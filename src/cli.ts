@@ -1,8 +1,9 @@
 import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
-import * as collectInvokeImportsCommand from './command/edit.js'
 import yargs from 'yargs'
 import {hideBin} from 'yargs/helpers'
+
+import * as collectInvokeImportsCommand from './command/edit.js'
 
 const cli = yargs(hideBin(process.argv))
 cli.detectLocale(false)
