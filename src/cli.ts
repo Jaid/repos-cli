@@ -1,4 +1,4 @@
-import type {InferredOptionTypes, Options} from 'yargs'
+import type {InferredOptionTypes} from 'yargs'
 
 import yargs from 'yargs'
 import {hideBin} from 'yargs/helpers'
