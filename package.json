@@ -34,9 +34,8 @@
   },
   "scripts": {
     "start": "node --import tsx src/cli.ts",
-    "test": "node --import tsx --test test/index.ts",
-    "openInvokeConfig": "code $INVOKEAI_ROOT/invokeai.yaml",
-    "openInvokeModelsConfig": "code $INVOKEAI_ROOT/configs/models.yaml"
+    "startList": "node --import tsx src/cli.ts -- list",
+    "test": "node --import tsx --test test/index.ts"
   },
   "bin": "./src/cli.ts"
 }

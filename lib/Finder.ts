@@ -1,6 +1,6 @@
 import type {ReadableStream} from 'node:stream/web'
 
-import {convertPathToPattern, globbyStream} from 'globby'
+import {convertPathToPattern, globbyStream, isDynamicPattern} from 'globby'
 
 import {ansiDarkOrange3, ansiGold3} from './chalk.js'
 
@@ -8,6 +8,8 @@ export type Source = {
   input: string
   type: `glob` | `parent`
 }
+
+export type SourceInput = Source | string
 
 export type RepoFolder = {
   name: string
@@ -32,6 +34,13 @@ export class Match {
 }
 
 export class Finder {
+  static fromSources(sources: SourceInput[]): Finder {
+    const finder = new Finder
+    for (const source of sources) {
+      finder.addSource(source)
+    }
+    return finder
+  }
   baseSources: Source[] = []
   cwd: string
   constructor(options = {}) {
@@ -49,8 +58,25 @@ export class Finder {
       type: `parent`,
     })
   }
-  addSource(location: Source): void {
-    this.baseSources.push(location)
+  addSource(location: SourceInput): void {
+    const source = this.#normalizeSource(location)
+    this.baseSources.push(source)
+  }
+  async expectSingle(needle: string, additionalSources: Source[] = []): Promise<Match | undefined> {
+    const match = await this.findSingle(needle, additionalSources)
+    if (!match) {
+      const errorMessage = `No repo found for needle: ${needle}`
+      console.error(errorMessage)
+      console.error(`Searched in:`)
+      for (const source of this.baseSources) {
+        console.error(`• ${source.type} “${source.input}”`)
+      }
+      for (const source of additionalSources) {
+        console.error(`• ${source.type} “${source.input}”`)
+      }
+      throw new Error(errorMessage)
+    }
+    return match
   }
   async findReposInFolder(parentFolder: string): Promise<RepoFolder[]> {
     const glob = this.#makeGlobbyFromParent(parentFolder)
@@ -73,11 +99,11 @@ export class Finder {
     }
     return repoFolders
   }
-  async findSingle(needle: string, additionalSources: Source[] = []): Promise<Match> {
+  async findSingle(needle: string, additionalSources: Source[] = []): Promise<Match | undefined> {
     const matches = await this.getAllMatches(additionalSources)
     const suitableMatches = matches.filter(match => match.repoFolder.name === needle)
     if (suitableMatches.length === 0) {
-      throw new Error(`No repos found`)
+      return
     }
     if (suitableMatches.length > 1) {
       console.log(`Multiple repos found: ${suitableMatches.map(match => match.repoFolder.name).join(`, `)}`)
@@ -86,6 +112,9 @@ export class Finder {
   }
   async getAllMatches(additionalSources: Source[] = []): Promise<Match[]> {
     const sources = [...this.baseSources, ...additionalSources]
+    if (!sources.length) {
+      throw new Error(`No search sources specified`)
+    }
     const matches: Match[] = []
     for (const source of sources) {
       let repoFolders: RepoFolder[]
@@ -116,5 +145,20 @@ export class Finder {
   #makeGlobbyFromParent(parentFolder: string): ReturnType<typeof globbyStream> {
     const glob = convertPathToPattern(parentFolder)
     return this.#makeGlobbyFromGlob(`${glob}/*`)
+  }
+  #normalizeSource(source: SourceInput): Source {
+    if (typeof source === `string`) {
+      if (isDynamicPattern(source)) {
+        return {
+          input: source,
+          type: `glob`,
+        }
+      }
+      return {
+        input: source,
+        type: `parent`,
+      }
+    }
+    return source
   }
 }
