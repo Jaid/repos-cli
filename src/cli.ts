@@ -1,4 +1,4 @@
-import type {InferredOptionTypes, Options} from 'yargs'
+import type {InferredOptionTypes} from 'yargs'
 
 import os from 'node:os'
 import path from 'node:path'
