@@ -3,31 +3,26 @@ import type {GlobalArgs} from '~/src/cli.js'
 
 import readFileYaml from 'read-file-yaml'
 
-type GatherSourcesOptions = {
-  configFile?: string
-  globSources?: string[]
-  parentSources?: string[]
-  typelessSources?: string[]
-}
+type GatherSourcesOptions = Pick<GlobalArgs, 'configFile' | 'glob' | 'parent' | 'source'>
 type Config = {
   sources?: SourceInput[]
 }
 
 export const gatherSources = async (options: GatherSourcesOptions): Promise<SourceInput[]> => {
   const sources: SourceInput[] = []
-  for (const parent of options.parentSources ?? []) {
+  for (const parent of options.parent ?? []) {
     sources.push({
       input: parent,
       type: `parent`,
     })
   }
-  for (const glob of options.globSources ?? []) {
+  for (const glob of options.glob ?? []) {
     sources.push({
       input: glob,
       type: `glob`,
     })
   }
-  for (const source of options.typelessSources ?? []) {
+  for (const source of options.source ?? []) {
     sources.push(source)
   }
   if (options.configFile) {
@@ -39,13 +34,4 @@ export const gatherSources = async (options: GatherSourcesOptions): Promise<Sour
     }
   }
   return sources
-}
-
-export const gatherSourcesFromArgs = async (args: GlobalArgs): Promise<SourceInput[]> => {
-  return gatherSources({
-    configFile: args.configFile,
-    globSources: <string[]> args.glob,
-    parentSources: <string[]> args.parent,
-    typelessSources: <string[]> args.source,
-  })
 }

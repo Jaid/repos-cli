@@ -3,7 +3,7 @@ import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
 import {chalkifyPath} from '~/lib/chalk.js'
 import {Finder} from '~/lib/Finder.js'
-import {gatherSources, gatherSourcesFromArgs} from '~/lib/gatherSources.js'
+import {gatherSources} from '~/lib/gatherSources.js'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
 
@@ -21,7 +21,7 @@ export const builder = (argv: Argv) => {
 }
 
 export const handler = async (args: GlobalArgs & Args) => {
-  const sources = await gatherSourcesFromArgs(args)
+  const sources = await gatherSources(args)
   const finder = Finder.fromSources(sources)
   const repoFolders = await finder.getAllRepos()
   for (const repoFolder of repoFolders) {
