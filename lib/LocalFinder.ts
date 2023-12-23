@@ -1,5 +1,3 @@
-import type {ReadableStream} from 'node:stream/web'
-
 import {convertPathToPattern, globbyStream, isDynamicPattern} from 'globby'
 
 import {ansiDarkOrange3, ansiGold3} from './chalk.js'
@@ -23,7 +21,7 @@ export class Match {
     this.source = source
     this.repoFolder = repoFolder
   }
-  toColorString(): string {
+  toAnsiString(): string {
     const first = ansiDarkOrange3(`${this.repoFolder.parents}/`)
     const second = ansiGold3(this.repoFolder.name)
     return first + second
@@ -33,9 +31,9 @@ export class Match {
   }
 }
 
-export class Finder {
-  static fromSources(sources: SourceInput[]): Finder {
-    const finder = new Finder
+export class LocalFinder {
+  static fromSources(sources: SourceInput[]): LocalFinder {
+    const finder = new LocalFinder
     for (const source of sources) {
       finder.addSource(source)
     }

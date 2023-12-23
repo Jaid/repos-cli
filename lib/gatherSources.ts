@@ -1,15 +1,39 @@
-import type {SourceInput} from './Finder.js'
+import type {SourceInput} from './LocalFinder.js'
 import type {GlobalArgs} from '~/src/cli.js'
 
 import readFileYaml from 'read-file-yaml'
 
-type GatherSourcesOptions = Pick<GlobalArgs, 'configFile' | 'glob' | 'parent' | 'source'>
+type GatherSourcesOptions = Pick<GlobalArgs, 'configFile' | 'foreignReposFolder' | 'forksFolder' | 'gistFolder' | 'glob' | 'parent' | 'reposFolder' | 'source'>
 type Config = {
   sources?: SourceInput[]
 }
 
 export const gatherSources = async (options: GatherSourcesOptions): Promise<SourceInput[]> => {
   const sources: SourceInput[] = []
+  if (options.reposFolder) {
+    sources.push({
+      input: options.reposFolder,
+      type: `parent`,
+    })
+  }
+  if (options.forksFolder) {
+    sources.push({
+      input: options.forksFolder,
+      type: `parent`,
+    })
+  }
+  if (options.gistFolder) {
+    sources.push({
+      input: options.gistFolder,
+      type: `parent`,
+    })
+  }
+  if (options.foreignReposFolder) {
+    sources.push({
+      input: `${options.foreignReposFolder}/*/*`,
+      type: `glob`,
+    })
+  }
   for (const parent of options.parent ?? []) {
     sources.push({
       input: parent,

@@ -23,9 +23,7 @@ const filterReposPredicate = (repo: Repo) => {
 }
 
 export const handler = async (args: GlobalArgs & Args) => {
-  const octokit = new ExtendedOctokit({
-    timeZone: process.env.TZ ?? `UTC`,
-  }, process.env.GITHUB_TOKEN)
+  const octokit = new ExtendedOctokit(undefined, process.env.GITHUB_TOKEN)
   const repos = await octokit.listRepos(args.githubUser)
   for (const repo of repos) {
     if (!filterReposPredicate(repo)) {

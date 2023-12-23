@@ -3,8 +3,7 @@ import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
 import {execa} from 'execa'
 
-import {Finder} from '~/lib/Finder.js'
-import {gatherSources} from '~/lib/gatherSources.js'
+import {findOrClone} from '~/lib/findOrClone.js'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
 
@@ -25,15 +24,14 @@ export const builder = (argv: Argv) => {
 }
 
 export const handler = async (args: GlobalArgs & Args) => {
-  const sources = await gatherSources(args)
-  const finder = Finder.fromSources(sources)
-  const repoFolder = await finder.expectSingle(args.needle!)
-  if (!repoFolder) {
+  const needle = args.needle
+  const findResult = await findOrClone(args, needle)
+  if (!findResult) {
     return
   }
-  const codeArgs = [`--new-window`, `--goto`, repoFolder.toString()]
-  const result = await execa(args.codePath!, codeArgs, {
+  const codeArgs = [`--new-window`, `--goto`, findResult.match.toString()]
+  const execaResult = await execa(args.codePath!, codeArgs, {
     stdio: `inherit`,
   })
-  console.log(result.escapedCommand)
+  console.log(execaResult.escapedCommand)
 }
