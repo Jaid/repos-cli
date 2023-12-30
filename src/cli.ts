@@ -1,11 +1,11 @@
 import type {InferredOptionTypes} from 'yargs'
 
 import os from 'node:os'
-import path from 'node:path'
 
 import yargs from 'yargs'
 import {hideBin} from 'yargs/helpers'
 
+import path from '~/lib/commonPath.js'
 import {defaultReposFolder} from '~/lib/defaultReposFolder.js'
 
 import * as findCommand from './command/find.js'
@@ -66,7 +66,7 @@ const globalOptions = {
     string: true,
   },
 }
-const cli = yargs(hideBin(process.argv))
+export const cli = yargs(hideBin(process.argv))
 cli.detectLocale(false)
 cli.strict()
 cli.parserConfiguration({

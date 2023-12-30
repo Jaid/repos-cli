@@ -1,7 +1,8 @@
 import {Octokit} from '@octokit/rest'
+import {RequestError} from 'got'
 
-export type Repo = (ReturnType<typeof ExtendedOctokit.prototype.repos.get> extends Promise<infer U> ? U : never)['data']
-export type Gist = (ReturnType<typeof ExtendedOctokit.prototype.gists.get> extends Promise<infer U> ? U : never)['data']
+export type RepoData = (ReturnType<typeof ExtendedOctokit.prototype.repos.get> extends Promise<infer U> ? U : never)['data']
+export type GistData = (ReturnType<typeof ExtendedOctokit.prototype.gists.get> extends Promise<infer U> ? U : never)['data']
 
 export class ExtendedOctokit extends Octokit {
   authOwner: string
@@ -17,21 +18,30 @@ export class ExtendedOctokit extends Octokit {
     super(options)
     this.hasToken = Boolean(token)
   }
-  async findGist(gistId: string): Promise<Gist | undefined> {
+  async findGist(gistId: string): Promise<GistData | undefined> {
     const gist = await this.gists.get({
       gist_id: gistId,
     })
     return gist.data
   }
-  async findRepo(repoName: string, githubUser?: string): Promise<Repo | undefined> {
+  async findRepo(repoName: string, githubUser?: string): Promise<RepoData | undefined> {
     let owner = githubUser
     if (!owner) {
       owner = await this.getAuthOwner()
     }
-    const repo = await this.repos.get({
-      owner,
-      repo: repoName,
-    })
+    let repo: {data: RepoData}
+    try {
+      repo = await this.repos.get({
+        owner,
+        repo: repoName,
+      })
+    } catch (error) {
+      // @ts-expect-error
+      if (error instanceof RequestError && error.status === 404) {
+        return
+      }
+      throw error
+    }
     return repo.data
   }
   async getAuthOwner(): Promise<string> {
@@ -42,7 +52,7 @@ export class ExtendedOctokit extends Octokit {
     this.authOwner = authUser.data.login
     return this.authOwner
   }
-  async listRepos(githubUser?: string): Promise<Repo[]> {
+  async listRepos(githubUser?: string): Promise<RepoData[]> {
     if (this.hasToken) {
       const remoteRepoNames = await this.paginate(this.rest.repos.listForAuthenticatedUser, {
         per_page: 100,

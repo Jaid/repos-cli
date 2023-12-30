@@ -1,6 +1,6 @@
 import {convertPathToPattern, globbyStream, isDynamicPattern} from 'globby'
 
-import {ansiDarkOrange3, ansiGold3} from './chalk.js'
+import {Repo} from './Repo.js'
 
 export type Source = {
   input: string
@@ -9,25 +9,12 @@ export type Source = {
 
 export type SourceInput = Source | string
 
-export type RepoFolder = {
-  name: string
-  parents: string
-}
-
 export class Match {
-  repoFolder: RepoFolder
+  repo: Repo
   source: Source
-  constructor(source: Source, repoFolder: RepoFolder) {
+  constructor(source: Source, repo: Repo) {
     this.source = source
-    this.repoFolder = repoFolder
-  }
-  toAnsiString(): string {
-    const first = ansiDarkOrange3(`${this.repoFolder.parents}/`)
-    const second = ansiGold3(this.repoFolder.name)
-    return first + second
-  }
-  toString(): string {
-    return `${this.repoFolder.parents}/${this.repoFolder.name}`
+    this.repo = repo
   }
 }
 
@@ -76,35 +63,30 @@ export class LocalFinder {
     }
     return match
   }
-  async findReposInFolder(parentFolder: string): Promise<RepoFolder[]> {
+  async findReposInFolder(parentFolder: string): Promise<Repo[]> {
     const glob = this.#makeGlobbyFromParent(parentFolder)
     return this.findReposInGlobbyStream(glob)
   }
-  async findReposInGlob(glob: string): Promise<RepoFolder[]> {
+  async findReposInGlob(glob: string): Promise<Repo[]> {
     const stream = this.#makeGlobbyFromGlob(glob)
     return this.findReposInGlobbyStream(stream)
   }
-  async findReposInGlobbyStream(stream: ReturnType<typeof globbyStream>): Promise<RepoFolder[]> {
-    const repoFolders: RepoFolder[] = []
+  async findReposInGlobbyStream(stream: ReturnType<typeof globbyStream>): Promise<Repo[]> {
+    const repos: Repo[] = []
     for await (const entry of stream) {
-      const withoutGit = (<string> entry).slice(0, -5)
-      const name = withoutGit.slice(withoutGit.lastIndexOf(`/`) + 1)
-      const parents = withoutGit.slice(0, withoutGit.lastIndexOf(`/`))
-      repoFolders.push({
-        name,
-        parents,
-      })
+      const repo = Repo.fromFolder(<string> entry)
+      repos.push(repo)
     }
-    return repoFolders
+    return repos
   }
   async findSingle(needle: string, additionalSources: Source[] = []): Promise<Match | undefined> {
     const matches = await this.getAllMatches(additionalSources)
-    const suitableMatches = matches.filter(match => match.repoFolder.name === needle)
+    const suitableMatches = matches.filter(match => match.repo.name === needle)
     if (suitableMatches.length === 0) {
       return
     }
     if (suitableMatches.length > 1) {
-      console.log(`Multiple repos found: ${suitableMatches.map(match => match.repoFolder.name).join(`, `)}`)
+      console.log(`Multiple repos found: ${suitableMatches.map(match => match.repo.asFolder()).join(`, `)}`)
     }
     return suitableMatches[0]
   }
@@ -115,14 +97,14 @@ export class LocalFinder {
     }
     const matches: Match[] = []
     for (const source of sources) {
-      let repoFolders: RepoFolder[]
+      let repos: Repo[]
       if (source.type === `glob`) {
-        repoFolders = await this.findReposInGlob(source.input)
+        repos = await this.findReposInGlob(source.input)
       } else {
-        repoFolders = await this.findReposInFolder(source.input)
+        repos = await this.findReposInFolder(source.input)
       }
-      for (const repoFolder of repoFolders) {
-        const match = new Match(source, repoFolder)
+      for (const repo of repos) {
+        const match = new Match(source, repo)
         matches.push(match)
       }
     }
@@ -130,7 +112,7 @@ export class LocalFinder {
   }
   async getAllRepos(additionalSources: Source[] = []): Promise<string[]> {
     const matches = await this.getAllMatches(additionalSources)
-    return matches.map(match => match.toString())
+    return matches.map(match => match.repo.asFolder())
   }
   #makeGlobbyFromGlob(glob: string): ReturnType<typeof globbyStream> {
     const gitGlob = `${glob}/.git`

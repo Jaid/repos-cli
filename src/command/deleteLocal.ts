@@ -1,12 +1,14 @@
 import type {GlobalArgs} from '../cli.js'
 import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
+import console from 'node:console'
+
 import Context from '../Context.js'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
 
-export const command = `find <needle>`
-export const description = `finds a single repo`
+export const command = `delete-local <needle>`
+export const description = `finds a single repo on disk and deletes its folder`
 export const builder = (argv: Argv) => {
   return argv
     .positional(`needle`, {
@@ -19,10 +21,9 @@ export const builder = (argv: Argv) => {
 
 export const handler = async (args: GlobalArgs & Args) => {
   const context = await Context.withConfig(args)
-  const result = await context.findAnywhere()
+  const result = await context.findLocal()
   if (!result) {
     console.error(`No repo found for needle: ${args.needle}`)
     return
   }
-  console.log(result.repo.toAnsiString())
 }

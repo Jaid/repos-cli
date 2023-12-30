@@ -1,12 +1,13 @@
-import type {GithubResult} from './findAnywhere.js'
+import type {GithubResult} from '../lib/find.js'
 import type {GlobalArgs} from '~/src/cli.js'
 import type {SimpleGit} from 'simple-git'
 import type {AsyncReturnType} from 'type-fest'
 
-import path from 'node:path'
 import util from 'node:util'
 
 import {simpleGit} from 'simple-git'
+
+import path from '~/lib/commonPath.js'
 
 export type Options = GlobalArgs & {
   isForeign?: boolean

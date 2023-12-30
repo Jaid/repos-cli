@@ -7,7 +7,7 @@ export const ansiGold3 = chalk.ansi256(178)
 
 export const chalkifyPath = (fileOrFolder: string): string => {
   if (!fileOrFolder.includes(`/`) && !fileOrFolder.includes(`\\`)) {
-    return ansiGold3(fileOrFolder)
+    return fileOrFolder
   }
   const lastOccurenceOfSlash = Math.max(fileOrFolder.lastIndexOf(`/`), fileOrFolder.lastIndexOf(`\\`))
   const end = fileOrFolder.slice(lastOccurenceOfSlash + 1)
