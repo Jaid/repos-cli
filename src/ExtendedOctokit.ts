@@ -1,5 +1,5 @@
+import {RequestError} from '@octokit/request-error'
 import {Octokit} from '@octokit/rest'
-import {RequestError} from 'got'
 
 export type RepoData = (ReturnType<typeof ExtendedOctokit.prototype.repos.get> extends Promise<infer U> ? U : never)['data']
 export type GistData = (ReturnType<typeof ExtendedOctokit.prototype.gists.get> extends Promise<infer U> ? U : never)['data']
@@ -36,7 +36,6 @@ export class ExtendedOctokit extends Octokit {
         repo: repoName,
       })
     } catch (error) {
-      // @ts-expect-error
       if (error instanceof RequestError && error.status === 404) {
         return
       }

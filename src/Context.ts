@@ -171,7 +171,7 @@ export default class Context {
   }
   getExpectedParentFolder(githubRepo: Repo) {
     const repoData = githubRepo.githubRepo!
-    const isForeign = this.#octokitUser !== repoData.owner.login
+    const isForeign = this.isRepoForeign(githubRepo)
     if (isForeign) {
       return path.join(this.foreignReposFolder, repoData.owner.login)
     }
@@ -192,6 +192,10 @@ export default class Context {
     }
     this.#octokit = octokit
     return octokit
+  }
+  isRepoForeign(githubRepo: Repo) {
+    const repoData = githubRepo.githubRepo!
+    return this.#octokitUser !== repoData.owner.login
   }
   async loadConfig() {
     if (!this.options.configFile) {

@@ -1,11 +1,37 @@
 import type {RepoData} from './ExtendedOctokit.js'
+import type {MatchFromKeys} from '~/lib/superRegexTypes.js'
+import type {RemoteWithRefs} from 'simple-git'
 
 import fs from 'fs-extra'
 import {simpleGit} from 'simple-git'
+import {firstMatch} from 'super-regex'
 
 import path from '~/lib/commonPath.js'
 
 import {chalkifyPath} from '../lib/chalk.js'
+
+export type GithubExpressionMatch = {
+  owner: string
+  repo: string
+}
+
+export type GithubMatch = MatchFromKeys<'owner' | 'repo'>
+
+const githubExpression = /(\/\/|@)github.com(:|\/)(?<owner>[^/]+)\/(?<repo>[^/]+?)(\.git)?$/i
+const pickFromRemotes = (remotes: RemoteWithRefs[]) => {
+  if (remotes.length === 0) {
+    return
+  }
+  const originRemote = remotes.find(remote => remote.name === `origin`)
+  if (originRemote) {
+    return originRemote
+  }
+  const upstreamRemote = remotes.find(remote => remote.name === `upstream`)
+  if (upstreamRemote) {
+    return upstreamRemote
+  }
+  return remotes[0]
+}
 
 export class Repo {
   static fromFolder(folder: string): Repo {
@@ -105,6 +131,52 @@ export class Repo {
   }
   getAnsiSlug() {
     return chalkifyPath(this.asSlug())
+  }
+  getBasehead() {
+    const parent = this.getParent()
+    if (!parent) {
+      return
+    }
+    // @ts-expect-error
+    return `${parent.owner.login}:${parent.default_branch}...${this.githubRepo.owner.login}:${this.githubRepo.default_branch}`
+  }
+  async getFetchUrl() {
+    this.expectLocal()
+    const git = this.getSimpleGit()
+    const remotes = await git.getRemotes(true)
+    const remote = pickFromRemotes(remotes)
+    if (!remote) {
+      return
+    }
+    return remote.refs.fetch
+  }
+  async getGithubSlug() {
+    this.expectLocal()
+    const fetchUrl = await this.getFetchUrl()
+    if (!fetchUrl) {
+      return
+    }
+    const githubExpressionMatch = <GithubMatch> firstMatch(githubExpression, fetchUrl)
+    if (!githubExpressionMatch) {
+      return
+    }
+    return githubExpressionMatch.namedGroups
+  }
+  getParent() {
+    if (!this.isFork()) {
+      return
+    }
+    // @ts-expect-error
+    return this.githubRepo.parent
+  }
+  getSimpleGit() {
+    this.expectLocal()
+    return simpleGit(this.asFolder())
+  }
+  isFork() {
+    this.expectRemote()
+    // @ts-expect-error
+    return this.githubRepo.fork
   }
   isLocal() {
     return Boolean(this.parentFolder)

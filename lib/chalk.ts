@@ -14,3 +14,11 @@ export const chalkifyPath = (fileOrFolder: string): string => {
   const start = fileOrFolder.slice(0, lastOccurenceOfSlash + 1)
   return `${ansiDarkOrange3(start)}${ansiGold3(end)}`
 }
+
+export const makeBubble = (text: string, color: number, paddingText: string = ``): string => {
+  const frontSegment = chalk.ansi256(color)(``)
+  const paddingSegment = chalk.bgAnsi256(color)(paddingText)
+  const textSegment = chalk.bgAnsi256(color)(text)
+  const backSegment = chalk.ansi256(color)(``)
+  return `${frontSegment}${paddingSegment}${textSegment}${paddingSegment}${backSegment}`
+}
