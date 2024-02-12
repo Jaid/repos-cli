@@ -1,5 +1,4 @@
 import type {GlobalArgs} from './cli.js'
-import type {Match, SourceInput} from '~/src/LocalFinder.js'
 import type {Merge} from 'type-fest'
 
 import readFileYaml from 'read-file-yaml'
@@ -7,7 +6,7 @@ import readFileYaml from 'read-file-yaml'
 import path from '~/lib/commonPath.js'
 import {defaultReposFolder} from '~/lib/defaultReposFolder.js'
 import {ExtendedOctokit} from '~/src/ExtendedOctokit.js'
-import {LocalFinder} from '~/src/LocalFinder.js'
+import {LocalFinder, type Match, type SourceInput} from '~/src/LocalFinder.js'
 import {Repo} from '~/src/Repo.js'
 
 type CommonResult = {

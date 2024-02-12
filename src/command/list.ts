@@ -4,9 +4,9 @@ import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 import * as lodash from 'lodash-es'
 
 import {chalk, makeBubble} from '~/lib/chalk.js'
-import {LocalFinder} from '~/src/LocalFinder.js'
 
 import Context from '../Context.js'
+import {LocalFinder} from '../LocalFinder.js'
 import {Repo} from '../Repo.js'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
