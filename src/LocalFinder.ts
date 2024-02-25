@@ -117,7 +117,7 @@ export class LocalFinder {
   }
   async findSingle(needle?: string, additionalSources: Source[] = []): Promise<Match | undefined> {
     if (!needle) {
-      const source:Source = {
+      const source: Source = {
         input: this.options.cwd,
         type: `deep`,
       }

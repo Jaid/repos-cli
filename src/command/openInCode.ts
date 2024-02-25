@@ -30,7 +30,7 @@ export const handler = async (args: GlobalArgs & Args) => {
     return
   }
   const codeArgs = [`--new-window`, `--goto`, repo.asFolder()]
-  const execaResult = await execa(args.codePath!, codeArgs, {
+  const execaResult = await execa(args.codePath, codeArgs, {
     stdio: `inherit`,
   })
   console.log(execaResult.escapedCommand)
