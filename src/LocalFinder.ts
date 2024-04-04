@@ -1,7 +1,7 @@
 import {convertPathToPattern, globbyStream, isDynamicPattern} from 'globby'
 
-import path from '~/lib/commonPath.js'
-import {isGitFolder} from '~/lib/isGitFolder.js'
+import path from 'lib/commonPath.js'
+import {isGitFolder} from 'lib/isGitFolder.js'
 
 import {Repo} from './Repo.js'
 

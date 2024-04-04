@@ -1,12 +1,12 @@
 import type {RepoData} from './ExtendedOctokit.js'
-import type {MatchFromKeys} from '~/lib/superRegexTypes.js'
+import type {MatchFromKeys} from 'lib/superRegexTypes.js'
 import type {RemoteWithRefs} from 'simple-git'
 
 import fs from 'fs-extra'
 import {simpleGit} from 'simple-git'
 import {firstMatch} from 'super-regex'
 
-import path from '~/lib/commonPath.js'
+import path from 'lib/commonPath.js'
 
 import {chalkifyPath} from '../lib/chalk.js'
 

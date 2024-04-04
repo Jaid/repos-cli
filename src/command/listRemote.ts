@@ -1,8 +1,8 @@
 import type {GlobalArgs} from '../cli.js'
-import type {RepoData} from '~/src/ExtendedOctokit.js'
+import type {RepoData} from 'src/ExtendedOctokit.js'
 import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
-import {chalkifyPath} from '~/lib/chalk.js'
+import {chalkifyPath} from 'lib/chalk.js'
 
 import Context from '../Context.js'
 

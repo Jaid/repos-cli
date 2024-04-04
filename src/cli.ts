@@ -5,8 +5,8 @@ import os from 'node:os'
 import yargs from 'yargs'
 import {hideBin} from 'yargs/helpers'
 
-import path from '~/lib/commonPath.js'
-import {defaultReposFolder} from '~/lib/defaultReposFolder.js'
+import path from 'lib/commonPath.js'
+import {defaultReposFolder} from 'lib/defaultReposFolder.js'
 
 import * as findCommand from './command/find.js'
 import * as listCommand from './command/list.js'

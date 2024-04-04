@@ -3,7 +3,7 @@ import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
 import * as lodash from 'lodash-es'
 
-import {chalk, makeBubble} from '~/lib/chalk.js'
+import {chalk, makeBubble} from 'lib/chalk.js'
 
 import Context from '../Context.js'
 import {LocalFinder} from '../LocalFinder.js'
