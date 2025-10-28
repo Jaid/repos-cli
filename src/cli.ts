@@ -16,7 +16,7 @@ import * as openInCodeCommand from './command/openInCode.js'
 
 export type YargsOptions = Parameters<ReturnType<typeof yargs>['options']>[0]
 export type GlobalArgs = InferredOptionTypes<typeof globalOptions>
-const coerceStringArray = (input?: string[]) => {
+const coerceStringArray = (input?: Array<string>) => {
   return input ?? []
 }
 const globalOptions = {
@@ -25,25 +25,25 @@ const globalOptions = {
     string: true,
   },
   foreignReposFolder: {
-    default: path.join(defaultReposFolder, `.foreign`),
+    default: path.join(defaultReposFolder, '.foreign'),
     string: true,
   },
   forksFolder: {
-    default: path.join(defaultReposFolder, `.fork`),
+    default: path.join(defaultReposFolder, '.fork'),
     string: true,
   },
   gistFolder: {
-    default: path.join(defaultReposFolder, `.gist`),
+    default: path.join(defaultReposFolder, '.gist'),
     string: true,
   },
   githubCloneBackend: {
-    choices: [`ssh`, `https`],
-    default: `ssh`,
+    choices: ['ssh', 'https'],
+    default: 'ssh',
     string: true,
   },
   githubUser: {
     default: process.env.GITHUB_USER,
-    description: `name of the GitHub user for remote retrieval`,
+    description: 'name of the GitHub user for remote retrieval',
     string: true,
   },
   glob: {

@@ -9,7 +9,7 @@ export class ExtendedOctokit extends Octokit {
   hasToken: boolean
   constructor(octokitOptions: ConstructorParameters<typeof Octokit>[0] = {}, token?: string) {
     const options = {
-      timeZone: process.env.TZ ?? `UTC`,
+      timeZone: process.env.TZ ?? 'UTC',
       ...octokitOptions,
     }
     if (token) {
@@ -51,7 +51,7 @@ export class ExtendedOctokit extends Octokit {
     this.authOwner = authUser.data.login
     return this.authOwner
   }
-  async listRepos(githubUser?: string): Promise<RepoData[]> {
+  async listRepos(githubUser?: string): Promise<Array<RepoData>> {
     if (this.hasToken) {
       const remoteRepoNames = await this.paginate(this.rest.repos.listForAuthenticatedUser, {
         per_page: 100,
@@ -62,7 +62,7 @@ export class ExtendedOctokit extends Octokit {
       return remoteRepoNames
     }
     if (!githubUser) {
-      throw new Error(`No GitHub user specified – Either specify $GITHUB_USER or $GITHUB_TOKEN or --github-user`)
+      throw new Error('No GitHub user specified – Either specify $GITHUB_USER or $GITHUB_TOKEN or --github-user')
     }
     const remoteRepoNames = await this.paginate(this.repos.listForUser, {
       per_page: 100,

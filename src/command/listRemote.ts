@@ -8,8 +8,8 @@ import Context from '../Context.js'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
 
-export const command = `list-remote`
-export const description = `lists remote repos`
+export const command = 'list-remote'
+export const description = 'lists remote repos'
 export const builder = (argv: Argv) => {
   return argv
     .options({

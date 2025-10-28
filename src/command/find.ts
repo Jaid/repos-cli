@@ -5,13 +5,13 @@ import Context from '../Context.js'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
 
-export const command = `find <needle>`
-export const description = `finds a single repo`
+export const command = 'find <needle>'
+export const description = 'finds a single repo'
 export const builder = (argv: Argv) => {
   return argv
-    .positional(`needle`, {
+    .positional('needle', {
       required: true,
-      type: `string`,
+      type: 'string',
     })
     .options({
     })

@@ -11,25 +11,25 @@ import {Repo} from '../Repo.js'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
 
-export const command = `list`
-export const description = `load tasks from a YAML file`
+export const command = 'list'
+export const description = 'load tasks from a YAML file'
 export const builder = (argv: Argv) => {
   return argv
     .options({
       extended: {
         boolean: true,
         default: false,
-        description: `extended output that contains git status and fork status`,
+        description: 'extended output that contains git status and fork status',
       },
       onlyDirty: {
         boolean: true,
         default: false,
-        description: `only show dirty repos`,
+        description: 'only show dirty repos',
       },
       onlyUnsync: {
         boolean: true,
         default: false,
-        description: `only show unsynced repos`,
+        description: 'only show unsynced repos',
       },
     })
 }
@@ -52,11 +52,11 @@ export const handler = async (args: GlobalArgs & Args) => {
           return
         }
         if (!useBubbles) {
-          process.stdout.write(` | `)
+          process.stdout.write(' | ')
           process.stdout.write(chalk.ansi256(color)(text))
           return
         }
-        process.stdout.write(` `)
+        process.stdout.write(' ')
         process.stdout.write(makeBubble(text, color))
       }
       const git = repo.getSimpleGit()
@@ -70,16 +70,16 @@ export const handler = async (args: GlobalArgs & Args) => {
       }
       if (args.extended) {
         if (status.behind) {
-          addSegment(String(status.behind), `󰜮`, 81)
+          addSegment(String(status.behind), '󰜮', 81)
         }
         if (status.ahead) {
-          addSegment(String(status.ahead), `󰜷`, 85)
+          addSegment(String(status.ahead), '󰜷', 85)
         }
         if (!lodash.isEmpty(status.conflicted)) {
-          addSegment(String(status.conflicted.length), `󰞇`, 160)
+          addSegment(String(status.conflicted.length), '󰞇', 160)
         }
         if (modifiedLength) {
-          addSegment(String(modifiedLength), ``, 210)
+          addSegment(String(modifiedLength), '', 210)
         }
         const getCommitsBehindCount = async () => {
           const githubSlug = await repo.getGithubSlug()
@@ -109,10 +109,10 @@ export const handler = async (args: GlobalArgs & Args) => {
         }
         const behindBy = await getCommitsBehindCount()
         if (behindBy) {
-          addSegment(String(behindBy), ``, 81)
+          addSegment(String(behindBy), '', 81)
         }
       }
     }
-    process.stdout.write(`\n`)
+    process.stdout.write('\n')
   }
 }

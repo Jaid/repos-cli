@@ -18,15 +18,15 @@ export type GithubExpressionMatch = {
 export type GithubMatch = MatchFromKeys<'owner' | 'repo'>
 
 const githubExpression = /(\/\/|@)github.com(:|\/)(?<owner>[^/]+)\/(?<repo>[^/]+?)(\.git)?$/i
-const pickFromRemotes = (remotes: RemoteWithRefs[]) => {
+const pickFromRemotes = (remotes: Array<RemoteWithRefs>) => {
   if (remotes.length === 0) {
     return
   }
-  const originRemote = remotes.find(remote => remote.name === `origin`)
+  const originRemote = remotes.find(remote => remote.name === 'origin')
   if (originRemote) {
     return originRemote
   }
-  const upstreamRemote = remotes.find(remote => remote.name === `upstream`)
+  const upstreamRemote = remotes.find(remote => remote.name === 'upstream')
   if (upstreamRemote) {
     return upstreamRemote
   }
@@ -38,7 +38,7 @@ export class Repo {
     const normalizedFolder = path.normalize(path.resolve(folder))
     const name = path.basename(normalizedFolder)
     const parentFolder = path.dirname(normalizedFolder)
-    if (name === `.git`) {
+    if (name === '.git') {
       return this.fromFolder(parentFolder)
     }
     return this.fromLocal(name, parentFolder)
@@ -87,7 +87,7 @@ export class Repo {
     const targetFolder = path.join(parentFolder, name)
     await fs.mkdirp(parentFolder)
     const git = simpleGit()
-    const urlProperty = useHttps ? `clone_url` : `ssh_url`
+    const urlProperty = useHttps ? 'clone_url' : 'ssh_url'
     // @ts-expect-error
     await git.clone(this.githubRepo[urlProperty], targetFolder)
     this.declareLocal(parentFolder, name)
@@ -156,7 +156,7 @@ export class Repo {
     if (!fetchUrl) {
       return
     }
-    const githubExpressionMatch = <GithubMatch> firstMatch(githubExpression, fetchUrl)
+    const githubExpressionMatch = firstMatch(githubExpression, fetchUrl) as GithubMatch
     if (!githubExpressionMatch) {
       return
     }

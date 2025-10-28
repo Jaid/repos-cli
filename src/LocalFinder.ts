@@ -7,7 +7,7 @@ import {Repo} from './Repo.js'
 
 export type Source = {
   input: string
-  type: `deep` | `glob` | `parent`
+  type: 'deep' | 'glob' | 'parent'
 }
 
 export type SourceInput = Source | string
@@ -23,19 +23,19 @@ export class Match {
 
 export type Options = {
   cwd: string
-  deepSources?: string[]
+  deepSources?: Array<string>
 }
 
 export class LocalFinder {
-  static fromSources(sources: SourceInput[]): LocalFinder {
+  static fromSources(sources: Array<SourceInput>): LocalFinder {
     const finder = new LocalFinder
     for (const source of sources) {
       finder.addSource(source)
     }
     return finder
   }
-  baseSources: Source[] = []
-  deepSources: Source[] = []
+  baseSources: Array<Source> = []
+  deepSources: Array<Source> = []
   options: Options
   constructor(options = {}) {
     const defaultOptions: Options = {
@@ -49,31 +49,31 @@ export class LocalFinder {
   addDeepSource(folder: string) {
     this.addSource({
       input: folder,
-      type: `deep`,
+      type: 'deep',
     })
   }
   addGlobSource(glob: string): void {
     this.addSource({
       input: glob,
-      type: `glob`,
+      type: 'glob',
     })
   }
   addParentSource(parentFolder: string) {
     this.addSource({
       input: parentFolder,
-      type: `parent`,
+      type: 'parent',
     })
   }
   addSource(location: SourceInput) {
     const source = this.#normalizeSource(location)
     this.baseSources.push(source)
   }
-  async expectSingle(needle: string, additionalSources: Source[] = []): Promise<Match | undefined> {
+  async expectSingle(needle: string, additionalSources: Array<Source> = []): Promise<Match | undefined> {
     const match = await this.findSingle(needle, additionalSources)
     if (!match) {
       const errorMessage = `No repo found for needle: ${needle}`
       console.error(errorMessage)
-      console.error(`Searched in:`)
+      console.error('Searched in:')
       for (const source of this.baseSources) {
         console.error(`• ${source.type} “${source.input}”`)
       }
@@ -99,27 +99,27 @@ export class LocalFinder {
       currentFolder = parentFolder
     }
   }
-  async findReposInFolder(parentFolder: string): Promise<Repo[]> {
+  async findReposInFolder(parentFolder: string): Promise<Array<Repo>> {
     const glob = this.#makeGlobbyFromParent(parentFolder)
     return this.findReposInGlobbyStream(glob)
   }
-  async findReposInGlob(glob: string): Promise<Repo[]> {
+  async findReposInGlob(glob: string): Promise<Array<Repo>> {
     const stream = this.#makeGlobbyFromGlob(glob)
     return this.findReposInGlobbyStream(stream)
   }
-  async findReposInGlobbyStream(stream: ReturnType<typeof globbyStream>): Promise<Repo[]> {
-    const repos: Repo[] = []
+  async findReposInGlobbyStream(stream: ReturnType<typeof globbyStream>): Promise<Array<Repo>> {
+    const repos: Array<Repo> = []
     for await (const entry of stream) {
-      const repo = Repo.fromFolder(<string> entry)
+      const repo = Repo.fromFolder(entry)
       repos.push(repo)
     }
     return repos
   }
-  async findSingle(needle?: string, additionalSources: Source[] = []): Promise<Match | undefined> {
+  async findSingle(needle?: string, additionalSources: Array<Source> = []): Promise<Match | undefined> {
     if (!needle) {
       const source: Source = {
         input: this.options.cwd,
-        type: `deep`,
+        type: 'deep',
       }
       const repos = await this.getAllReposFromSource(source)
       if (!repos.length) {
@@ -134,19 +134,19 @@ export class LocalFinder {
       return
     }
     if (suitableMatches.length > 1) {
-      console.log(`Multiple repos found: ${suitableMatches.map(match => match.repo.asFolder()).join(`, `)}`)
+      console.log(`Multiple repos found: ${suitableMatches.map(match => match.repo.asFolder()).join(', ')}`)
     }
     return suitableMatches[0]
   }
-  async getAllMatches(additionalSources: Source[] = []): Promise<Match[]> {
+  async getAllMatches(additionalSources: Array<Source> = []): Promise<Array<Match>> {
     const sources = [...this.baseSources, ...additionalSources]
     return this.getAllMatchesForSources(sources)
   }
-  async getAllMatchesForSources(sources: Source[] = []): Promise<Match[]> {
+  async getAllMatchesForSources(sources: Array<Source> = []): Promise<Array<Match>> {
     if (!sources.length) {
-      throw new Error(`No search sources specified`)
+      throw new Error('No search sources specified')
     }
-    const matches: Match[] = []
+    const matches: Array<Match> = []
     for (const source of sources) {
       const repos = await this.getAllReposFromSource(source)
       for (const repo of repos) {
@@ -156,21 +156,21 @@ export class LocalFinder {
     }
     return matches
   }
-  async getAllRepos(additionalSources: Source[] = []): Promise<string[]> {
+  async getAllRepos(additionalSources: Array<Source> = []): Promise<Array<string>> {
     const matches = await this.getAllMatches(additionalSources)
     return matches.map(match => match.repo.asFolder())
   }
-  async getAllReposFromSource(source: Source): Promise<Repo[]> {
-    if (source.type === `deep`) {
+  async getAllReposFromSource(source: Source): Promise<Array<Repo>> {
+    if (source.type === 'deep') {
       const repo = await this.findRepoFromFolder(source.input)
       if (repo) {
         return [repo]
       }
     }
-    if (source.type === `glob`) {
+    if (source.type === 'glob') {
       return this.findReposInGlob(source.input)
     }
-    if (source.type === `parent`) {
+    if (source.type === 'parent') {
       return this.findReposInFolder(source.input)
     }
     return []
@@ -188,16 +188,16 @@ export class LocalFinder {
     return this.#makeGlobbyFromGlob(`${glob}/*`)
   }
   #normalizeSource(source: SourceInput): Source {
-    if (typeof source === `string`) {
+    if (typeof source === 'string') {
       if (isDynamicPattern(source)) {
         return {
           input: source,
-          type: `glob`,
+          type: 'glob',
         }
       }
       return {
         input: source,
-        type: `parent`,
+        type: 'parent',
       }
     }
     return source

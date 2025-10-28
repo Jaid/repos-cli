@@ -34,7 +34,7 @@ export type Options = GlobalArgs & {
 }
 
 export type Config = {
-  sources?: SourceInput[]
+  sources?: Array<SourceInput>
 }
 
 export default class Context {
@@ -71,7 +71,7 @@ export default class Context {
   async findAnywhere(needle?: string): Promise<Result | undefined> {
     const retrievedNeedle = needle ?? this.options.needle
     if (!retrievedNeedle) {
-      throw new Error(`No needle provided`)
+      throw new Error('No needle provided')
     }
     const sources = await this.gatherSources()
     const finder = LocalFinder.fromSources(sources)
@@ -95,7 +95,7 @@ export default class Context {
   async findLocal(needle?: string): Promise<Match | undefined> {
     const retrievedNeedle = needle ?? this.options.needle
     if (!retrievedNeedle) {
-      throw new Error(`No needle provided`)
+      throw new Error('No needle provided')
     }
     const sources = await this.gatherSources()
     const finder = LocalFinder.fromSources(sources)
@@ -111,45 +111,45 @@ export default class Context {
       return result.repo
     }
     const cloneParentFolder = this.getExpectedParentFolder(result.repo)
-    await result.repo.clone(cloneParentFolder, this.options.githubCloneBackend !== `ssh`)
+    await result.repo.clone(cloneParentFolder, this.options.githubCloneBackend !== 'ssh')
     return result.repo
   }
-  async gatherSources(): Promise<SourceInput[]> {
-    const sources: SourceInput[] = []
+  async gatherSources(): Promise<Array<SourceInput>> {
+    const sources: Array<SourceInput> = []
     if (this.options.reposFolder) {
       sources.push({
         input: this.options.reposFolder,
-        type: `parent`,
+        type: 'parent',
       })
     }
     if (this.options.forksFolder) {
       sources.push({
         input: this.options.forksFolder,
-        type: `parent`,
+        type: 'parent',
       })
     }
     if (this.options.gistFolder) {
       sources.push({
         input: this.options.gistFolder,
-        type: `parent`,
+        type: 'parent',
       })
     }
     if (this.options.foreignReposFolder) {
       sources.push({
         input: `${this.options.foreignReposFolder}/*/*`,
-        type: `glob`,
+        type: 'glob',
       })
     }
     for (const parent of this.options.parent ?? []) {
       sources.push({
         input: parent,
-        type: `parent`,
+        type: 'parent',
       })
     }
     for (const glob of this.options.glob ?? []) {
       sources.push({
         input: glob,
-        type: `glob`,
+        type: 'glob',
       })
     }
     for (const source of this.options.source ?? []) {
@@ -201,7 +201,7 @@ export default class Context {
       return
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const config = <Config | undefined> await readFileYaml(this.options.configFile)
+    const config = await readFileYaml(this.options.configFile) as Config | undefined
     this.config = config
   }
 }

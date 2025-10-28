@@ -13,10 +13,10 @@
   },
   "bin": "./src/cli.ts",
   "scripts": {
+    "linkConfigFolder": "if [[ ! -d private ]]; then mkdir private && echo '*' > private/.gitignore; fi && lnfs $HOME/.config/$npm_package_name private/config",
     "start": "node --import tsx src/cli.ts",
     "startList": "node --import tsx src/cli.ts -- list",
-    "test": "node --import tsx --test test/index.ts",
-    "linkConfigFolder": "if [[ ! -d private ]]; then mkdir private && echo '*' > private/.gitignore; fi && lnfs $HOME/.config/$npm_package_name private/config"
+    "test": "node --import tsx --test test/index.ts"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.0",

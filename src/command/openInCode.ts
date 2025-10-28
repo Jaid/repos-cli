@@ -7,17 +7,17 @@ import Context from '../Context.js'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
 
-export const command = `open-in-code <needle>`
-export const description = `finds a single repo and opens it in VS Code`
+export const command = 'open-in-code <needle>'
+export const description = 'finds a single repo and opens it in VS Code'
 export const builder = (argv: Argv) => {
   return argv
-    .positional(`needle`, {
-      type: `string`,
+    .positional('needle', {
+      type: 'string',
     })
     .options({
       codePath: {
-        default: `code`,
-        description: `path to the code executable`,
+        default: 'code',
+        description: 'path to the code executable',
         string: true,
       },
     })
@@ -29,9 +29,9 @@ export const handler = async (args: GlobalArgs & Args) => {
   if (!repo) {
     return
   }
-  const codeArgs = [`--new-window`, `--goto`, repo.asFolder()]
+  const codeArgs = ['--new-window', '--goto', repo.asFolder()]
   const execaResult = await execa(args.codePath, codeArgs, {
-    stdio: `inherit`,
+    stdio: 'inherit',
   })
   console.log(execaResult.escapedCommand)
 }
