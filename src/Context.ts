@@ -201,7 +201,7 @@ export default class Context {
       return
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const config = <Config | undefined> await readFileYaml.default(this.options.configFile)
+    const config = <Config | undefined> await readFileYaml(this.options.configFile)
     this.config = config
   }
 }
