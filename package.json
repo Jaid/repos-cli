@@ -5,18 +5,18 @@
   "description": "",
   "keywords": [],
   "author": "Jaid <jaid.jsx@gmail.com> (https://github.com/Jaid)",
-  "homepage": "https://github.com/Jaid/webpack-config-factory",
+  "homepage": "https://github.com/Jaid/repos-cli",
   "funding": "https://github.com/sponsors/jaid",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jaid/webpack-config-factory"
+    "url": "https://github.com/jaid/repos-cli"
   },
   "bin": "./src/cli.ts",
   "scripts": {
     "linkConfigFolder": "if [[ ! -d private ]]; then mkdir private && echo '*' > private/.gitignore; fi && lnfs $HOME/.config/$npm_package_name private/config",
-    "start": "node --import tsx src/cli.ts",
-    "startList": "node --import tsx src/cli.ts -- list",
-    "test": "node --import tsx --test test/index.ts"
+    "start": "bun src/cli.ts",
+    "startList": "bun src/cli.ts -- list",
+    "test": "bun test ./test"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.0",
@@ -37,6 +37,7 @@
     "zeug": "^2.1.0"
   },
   "devDependencies": {
+    "@types/bun": "^1.3.1",
     "@types/yargs": "^17.0.34",
     "eslint-config-jaid": "^18.4.0",
     "globby": "^15.0.0",

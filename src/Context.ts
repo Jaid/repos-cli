@@ -50,23 +50,29 @@ export default class Context {
   constructor(options: Options) {
     this.options = options
   }
+  get alt() {
+    return this.options.alt ?? []
+  }
+  get asFolder() {
+    return this.options.asFolder
+  }
   get foreignReposFolder() {
-    return this.options.foreignReposFolder ?? `${this.reposFolder}/.foreign`
+    return this.options.foreignReposFolder
   }
   get forksFolder() {
-    return this.options.forksFolder ?? `${this.reposFolder}/.fork`
+    return this.options.forksFolder
   }
   get gistFolder() {
-    return this.options.gistFolder ?? `${this.reposFolder}/.gist`
+    return this.options.gistFolder
   }
   get githubToken() {
     return process.env.GITHUB_TOKEN
   }
   get githubUser() {
-    return this.options.githubUser ?? this.#octokitUser ?? process.env.GITHUB_USER
+    return this.options.githubUser ?? this.#octokitUser
   }
   get reposFolder() {
-    return this.options.reposFolder ?? defaultReposFolder
+    return this.options.reposFolder
   }
   async findAnywhere(needle?: string): Promise<Result | undefined> {
     const retrievedNeedle = needle ?? this.options.needle
@@ -140,6 +146,12 @@ export default class Context {
         type: 'glob',
       })
     }
+    for (const altAccount of this.alt) {
+      sources.push({
+        input: path.join(this.asFolder, '.as', altAccount),
+        type: 'parent',
+      })
+    }
     for (const parent of this.options.parent ?? []) {
       sources.push({
         input: parent,
@@ -170,9 +182,14 @@ export default class Context {
   }
   getExpectedParentFolder(githubRepo: Repo) {
     const repoData = githubRepo.githubRepo!
+    const ownerLogin = repoData.owner.login
+    // Check if this is an alt account
+    if (this.alt.includes(ownerLogin)) {
+      return path.join(this.asFolder, '.as', ownerLogin)
+    }
     const isForeign = this.isRepoForeign(githubRepo)
     if (isForeign) {
-      return path.join(this.foreignReposFolder, repoData.owner.login)
+      return path.join(this.foreignReposFolder, ownerLogin)
     }
     if (repoData.fork) {
       return this.forksFolder
@@ -194,7 +211,12 @@ export default class Context {
   }
   isRepoForeign(githubRepo: Repo) {
     const repoData = githubRepo.githubRepo!
-    return this.#octokitUser !== repoData.owner.login
+    const ownerLogin = repoData.owner.login
+    // Alt accounts are not considered foreign
+    if (this.alt.includes(ownerLogin)) {
+      return false
+    }
+    return this.#octokitUser !== ownerLogin
   }
   async loadConfig() {
     if (!this.options.configFile) {

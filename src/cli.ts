@@ -20,6 +20,17 @@ const coerceStringArray = (input?: Array<string>) => {
   return input ?? []
 }
 const globalOptions = {
+  alt: {
+    array: true,
+    coerce: coerceStringArray,
+    description: 'alt account names to include',
+    string: true,
+  },
+  asFolder: {
+    default: defaultReposFolder,
+    description: 'folder where alt accounts repos are stored in .as subdirectory',
+    string: true,
+  },
   configFile: {
     default: `${os.homedir()}/.config/repos-cli/config.yml`,
     string: true,
