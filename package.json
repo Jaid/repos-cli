@@ -26,6 +26,7 @@
     "fs-extra": "^11.3.2",
     "got": "^14.6.1",
     "lodash-es": "^4.17.21",
+    "open": "^10.2.0",
     "p-retry": "^7.1.0",
     "path-equal": "^1.2.5",
     "pretty-bytes": "^7.1.0",
