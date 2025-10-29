@@ -1,4 +1,4 @@
-import type {GlobalArgs} from './cli.js'
+import type {GlobalArgs} from './makeCli.js'
 import type {Merge} from 'type-fest'
 
 import * as path from 'forward-slash-path'
@@ -188,7 +188,11 @@ export default class Context {
     if (this.#resolvedAlt !== undefined) {
       return this.#resolvedAlt
     }
-    this.#resolvedAlt = await this.discoverAlts()
+    if (this.options.alt && this.options.alt.length > 0) {
+      this.#resolvedAlt = this.options.alt
+    } else {
+      this.#resolvedAlt = await this.discoverAlts()
+    }
     return this.#resolvedAlt
   }
   async getExpectedFolder(githubRepo: Repo, folderName?: string) {

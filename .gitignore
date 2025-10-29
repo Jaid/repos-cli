@@ -59,3 +59,6 @@ node_modules/
 .node_repl_history
 package-lock.json
 !/package-lock.json
+
+# Test coverage
+coverage/

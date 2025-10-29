@@ -19,6 +19,7 @@ describe('Alt accounts', () => {
   })
   test('getAlt returns empty array when no .as folder exists', async () => {
     const context = new Context({
+      alt: [],
       asFolder: temporaryFolder,
       configFile: '',
       foreignReposFolder: path.join(temporaryFolder, '.foreign'),
@@ -40,7 +41,8 @@ describe('Alt accounts', () => {
     await fs.mkdirp(path.join(asFolder, 'Alt1'))
     await fs.mkdirp(path.join(asFolder, 'Alt2'))
     const context = new Context({
-      asFolder: temporaryFolder,
+      alt: [],
+      asFolder,
       configFile: '',
       foreignReposFolder: path.join(temporaryFolder, '.foreign'),
       forksFolder: path.join(temporaryFolder, '.fork'),
@@ -55,7 +57,6 @@ describe('Alt accounts', () => {
     const alts = await context.getAlt()
     expect(alts.toSorted()).toEqual(['Alt1', 'Alt2'])
   })
-  test('getAlt discovers alts automatically', async () => {
   test('getAlt returns specified array when alt is array', async () => {
     const context = new Context({
       alt: ['Alt1', 'Alt2'],
@@ -81,8 +82,8 @@ describe('Alt accounts', () => {
     await fs.mkdirp(path.join(asFolder, 'AltAccount2'))
     await fs.mkdirp(path.join(asFolder, 'AltAccount3'))
     const context = new Context({
-      alt: true,
-      asFolder: temporaryFolder,
+      alt: [],
+      asFolder,
       configFile: '',
       foreignReposFolder: path.join(temporaryFolder, '.foreign'),
       forksFolder: path.join(temporaryFolder, '.fork'),
@@ -101,8 +102,8 @@ describe('Alt accounts', () => {
     const asFolder = path.join(temporaryFolder, '.as')
     await fs.mkdirp(path.join(asFolder, 'InitialAlt'))
     const context = new Context({
-      alt: true,
-      asFolder: temporaryFolder,
+      alt: [],
+      asFolder,
       configFile: '',
       foreignReposFolder: path.join(temporaryFolder, '.foreign'),
       forksFolder: path.join(temporaryFolder, '.fork'),
@@ -124,6 +125,7 @@ describe('Alt accounts', () => {
   })
   test('discoverAlts returns empty array when .as folder does not exist', async () => {
     const context = new Context({
+      alt: [],
       asFolder: temporaryFolder,
       configFile: '',
       foreignReposFolder: path.join(temporaryFolder, '.foreign'),
@@ -143,8 +145,8 @@ describe('Alt accounts', () => {
     const asFolder = path.join(temporaryFolder, '.as')
     await fs.mkdirp(path.join(asFolder, 'AltUser'))
     const context = new Context({
-      alt: true,
-      asFolder: temporaryFolder,
+      alt: [],
+      asFolder,
       configFile: '',
       foreignReposFolder: path.join(temporaryFolder, '.foreign'),
       forksFolder: path.join(temporaryFolder, '.fork'),
