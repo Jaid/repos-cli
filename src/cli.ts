@@ -2,14 +2,16 @@ import type {InferredOptionTypes} from 'yargs'
 
 import os from 'node:os'
 
+import * as path from 'forward-slash-path'
 import yargs from 'yargs'
 import {hideBin} from 'yargs/helpers'
 
-import path from 'lib/commonPath.js'
 import {defaultReposFolder} from 'lib/defaultReposFolder.js'
 
 import * as findCommand from './command/find.js'
+import * as goCommand from './command/go.js'
 import * as listCommand from './command/list.js'
+import * as listAccountsCommand from './command/listAccounts.js'
 import * as listRemoteCommand from './command/listRemote.js'
 import * as listSourcesCommand from './command/listSources.js'
 import * as openInCodeCommand from './command/openInCode.js'
@@ -20,15 +22,9 @@ const coerceStringArray = (input?: Array<string>) => {
   return input ?? []
 }
 const globalOptions = {
-  alt: {
-    array: true,
-    coerce: coerceStringArray,
-    description: 'alt account names to include',
-    string: true,
-  },
   asFolder: {
-    default: defaultReposFolder,
-    description: 'folder where alt accounts repos are stored in .as subdirectory',
+    default: path.join(defaultReposFolder, '.as'),
+    description: 'folder where alt accounts repos are stored in',
     string: true,
   },
   configFile: {
@@ -91,8 +87,10 @@ cli.completion()
 cli.options(globalOptions)
 cli.command(listCommand)
 cli.command(findCommand)
+cli.command(goCommand)
 cli.command(openInCodeCommand)
 cli.command(listSourcesCommand)
+cli.command(listAccountsCommand)
 cli.command(listRemoteCommand)
 cli.demandCommand()
 cli.help()

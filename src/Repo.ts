@@ -2,11 +2,10 @@ import type {RepoData} from './ExtendedOctokit.js'
 import type {MatchFromKeys} from 'lib/superRegexTypes.js'
 import type {RemoteWithRefs} from 'simple-git'
 
+import * as path from 'forward-slash-path'
 import fs from 'fs-extra'
 import {simpleGit} from 'simple-git'
 import {firstMatch} from 'super-regex'
-
-import path from 'lib/commonPath.js'
 
 import {chalkifyPath} from '../lib/chalk.js'
 
@@ -161,6 +160,14 @@ export class Repo {
       return
     }
     return githubExpressionMatch.namedGroups
+  }
+  getGithubUrl(): string | undefined {
+    if (this.isRemote()) {
+      // @ts-expect-error
+      return this.githubRepo.html_url
+    }
+    // For local repos, construct URL from slug if available
+    return
   }
   getParent() {
     if (!this.isFork()) {

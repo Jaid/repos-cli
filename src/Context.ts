@@ -1,10 +1,10 @@
 import type {GlobalArgs} from './cli.js'
 import type {Merge} from 'type-fest'
 
+import * as path from 'forward-slash-path'
+import {globby} from 'globby'
 import readFileYaml from 'read-file-yaml'
 
-import path from 'lib/commonPath.js'
-import {defaultReposFolder} from 'lib/defaultReposFolder.js'
 import {ExtendedOctokit} from 'src/ExtendedOctokit.js'
 import {LocalFinder, type Match, type SourceInput} from 'src/LocalFinder.js'
 import {Repo} from 'src/Repo.js'
@@ -47,11 +47,9 @@ export default class Context {
   options: Options
   #octokit: ExtendedOctokit | undefined
   #octokitUser: string | undefined
+  #resolvedAlt: Array<string> | undefined
   constructor(options: Options) {
     this.options = options
-  }
-  get alt() {
-    return this.options.alt ?? []
   }
   get asFolder() {
     return this.options.asFolder
@@ -73,6 +71,17 @@ export default class Context {
   }
   get reposFolder() {
     return this.options.reposFolder
+  }
+  async discoverAlts(): Promise<Array<string>> {
+    try {
+      const directories = await globby('*', {
+        cwd: this.asFolder,
+        onlyDirectories: true,
+      })
+      return directories
+    } catch {
+      return []
+    }
   }
   async findAnywhere(needle?: string): Promise<Result | undefined> {
     const retrievedNeedle = needle ?? this.options.needle
@@ -116,7 +125,7 @@ export default class Context {
     if (result.source === Source.Local) {
       return result.repo
     }
-    const cloneParentFolder = this.getExpectedParentFolder(result.repo)
+    const cloneParentFolder = await this.getExpectedParentFolder(result.repo)
     await result.repo.clone(cloneParentFolder, this.options.githubCloneBackend !== 'ssh')
     return result.repo
   }
@@ -146,9 +155,10 @@ export default class Context {
         type: 'glob',
       })
     }
-    for (const altAccount of this.alt) {
+    const altAccounts = await this.getAlt()
+    for (const altAccount of altAccounts) {
       sources.push({
-        input: path.join(this.asFolder, '.as', altAccount),
+        input: path.join(this.asFolder, altAccount),
         type: 'parent',
       })
     }
@@ -174,20 +184,28 @@ export default class Context {
     }
     return sources
   }
-  getExpectedFolder(githubRepo: Repo, folderName?: string) {
+  async getAlt(): Promise<Array<string>> {
+    if (this.#resolvedAlt !== undefined) {
+      return this.#resolvedAlt
+    }
+    this.#resolvedAlt = await this.discoverAlts()
+    return this.#resolvedAlt
+  }
+  async getExpectedFolder(githubRepo: Repo, folderName?: string) {
     const repoData = githubRepo.githubRepo!
     const name = folderName ?? repoData.name
-    const parentFolder = this.getExpectedParentFolder(githubRepo)
+    const parentFolder = await this.getExpectedParentFolder(githubRepo)
     return path.join(parentFolder, name)
   }
-  getExpectedParentFolder(githubRepo: Repo) {
+  async getExpectedParentFolder(githubRepo: Repo) {
     const repoData = githubRepo.githubRepo!
     const ownerLogin = repoData.owner.login
+    const altAccounts = await this.getAlt()
     // Check if this is an alt account
-    if (this.alt.includes(ownerLogin)) {
-      return path.join(this.asFolder, '.as', ownerLogin)
+    if (altAccounts.includes(ownerLogin)) {
+      return path.join(this.asFolder, ownerLogin)
     }
-    const isForeign = this.isRepoForeign(githubRepo)
+    const isForeign = await this.isRepoForeign(githubRepo)
     if (isForeign) {
       return path.join(this.foreignReposFolder, ownerLogin)
     }
@@ -209,11 +227,11 @@ export default class Context {
     this.#octokit = octokit
     return octokit
   }
-  isRepoForeign(githubRepo: Repo) {
+  async isRepoForeign(githubRepo: Repo) {
     const repoData = githubRepo.githubRepo!
     const ownerLogin = repoData.owner.login
-    // Alt accounts are not considered foreign
-    if (this.alt.includes(ownerLogin)) {
+    const altAccounts = await this.getAlt()
+    if (altAccounts.includes(ownerLogin)) {
       return false
     }
     return this.#octokitUser !== ownerLogin
@@ -222,7 +240,7 @@ export default class Context {
     if (!this.options.configFile) {
       return
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    // eslint-disable-next-line typescript/no-unsafe-call
     const config = await readFileYaml(this.options.configFile) as Config | undefined
     this.config = config
   }

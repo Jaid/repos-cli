@@ -1,9 +1,11 @@
 import type {GlobalArgs} from '../cli.js'
 import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
+import getFolderSize from 'get-folder-size'
 import * as lodash from 'lodash-es'
 
 import {chalk, makeBubble} from 'lib/chalk.js'
+import {desplit} from 'lib/desplit.js'
 
 import Context from '../Context.js'
 import {LocalFinder} from '../LocalFinder.js'
@@ -17,9 +19,20 @@ export const builder = (argv: Argv) => {
   return argv
     .options({
       extended: {
-        boolean: true,
-        default: false,
-        description: 'extended output that contains git status and fork status',
+        description: 'extended output that contains git status and fork status. Can be true or a comma-separated list of bubble IDs (behind,ahead,conflicts,modified,archived,inactive,large,fork-behind)',
+        string: true,
+        coerce: (value: boolean | string | undefined) => {
+          // If not provided or empty string, return true (show all bubbles)
+          if (value === undefined || value === '' || value === true) {
+            return true
+          }
+          //  If explicitly false, return false
+          if (value === 'false' || value === false) {
+            return false
+          }
+          // Otherwise, it's a string list
+          return value
+        },
       },
       onlyDirty: {
         boolean: true,
@@ -41,6 +54,19 @@ export const handler = async (args: GlobalArgs & Args) => {
   const matches = await finder.getAllMatches()
   const needsGitStatus = args.extended || args.onlyDirty || args.onlyUnsync
   const useBubbles = true
+  // Parse extended option
+  let enabledBubbles: Array<string> | 'all' = 'all'
+  if (typeof args.extended === 'string') {
+    enabledBubbles = desplit(args.extended)
+  } else if (!args.extended) {
+    enabledBubbles = []
+  }
+  const isBubbleEnabled = (bubbleId: string) => {
+    if (enabledBubbles === 'all') {
+      return true
+    }
+    return enabledBubbles.includes(bubbleId)
+  }
   for (const match of matches) {
     const repo = match.repo
     process.stdout.write(repo.getAnsiFolder())
@@ -69,18 +95,67 @@ export const handler = async (args: GlobalArgs & Args) => {
         continue
       }
       if (args.extended) {
-        if (status.behind) {
-          addSegment(String(status.behind), '󰜮', 81)
+        // Calculate all bubble data
+        const bubbleData: Record<string, {color: number
+          icon?: string
+          text: string} | null> = {
+          behind: status.behind ? {
+            text: String(status.behind),
+            icon: '󰜮',
+            color: 81,
+          } : null,
+          ahead: status.ahead ? {
+            text: String(status.ahead),
+            icon: '󰜷',
+            color: 85,
+          } : null,
+          conflicts: !lodash.isEmpty(status.conflicted) ? {
+            text: String(status.conflicted.length),
+            icon: '󰞇',
+            color: 160,
+          } : null,
+          modified: modifiedLength ? {
+            text: String(modifiedLength),
+            icon: '',
+            color: 210,
+          } : null,
+          archived: repo.githubRepo?.archived ? {
+            text: 'RIP',
+            icon: '🪦',
+            color: 240,
+          } : null,
+          inactive: null,
+          large: null,
+          'fork-behind': null,
         }
-        if (status.ahead) {
-          addSegment(String(status.ahead), '󰜷', 85)
+        // Check inactive
+        if (repo.githubRepo?.pushed_at) {
+          const lastPushDate = new Date(repo.githubRepo.pushed_at)
+          const now = new Date
+          const yearsSinceLastPush = (now.getTime() - lastPushDate.getTime()) / (1000 * 60 * 60 * 24 * 365)
+          if (yearsSinceLastPush >= 1) {
+            const years = Math.floor(yearsSinceLastPush)
+            bubbleData.inactive = {
+              text: `${years}y`,
+              icon: '💤',
+              color: 39,
+            }
+          }
         }
-        if (!lodash.isEmpty(status.conflicted)) {
-          addSegment(String(status.conflicted.length), '󰞇', 160)
+        // Check large
+        const repoFolder = repo.asFolder()
+        if (repoFolder) {
+          const folderSize = await getFolderSize.loose(repoFolder)
+          const sizeInGb = folderSize / 1_000_000_000
+          if (sizeInGb >= 1) {
+            bubbleData.large = {
+              text: `${sizeInGb.toFixed(1)} gb`,
+              icon: '⚖️',
+              color: 202,
+            }
+          }
         }
-        if (modifiedLength) {
-          addSegment(String(modifiedLength), '', 210)
-        }
+        // Check fork-behind
         const getCommitsBehindCount = async () => {
           const githubSlug = await repo.getGithubSlug()
           if (!githubSlug) {
@@ -92,7 +167,7 @@ export const handler = async (args: GlobalArgs & Args) => {
             return
           }
           const githubRepo = Repo.fromRemote(foundRepo)
-          const isForeign = context.isRepoForeign(githubRepo)
+          const isForeign = await context.isRepoForeign(githubRepo)
           if (isForeign) {
             return
           }
@@ -109,7 +184,19 @@ export const handler = async (args: GlobalArgs & Args) => {
         }
         const behindBy = await getCommitsBehindCount()
         if (behindBy) {
-          addSegment(String(behindBy), '', 81)
+          bubbleData['fork-behind'] = {
+            text: String(behindBy),
+            icon: '',
+            color: 81,
+          }
+        }
+        // Display bubbles in order
+        const bubbleOrder = enabledBubbles === 'all' ? ['behind', 'ahead', 'conflicts', 'modified', 'archived', 'inactive', 'large', 'fork-behind'] : enabledBubbles
+        for (const bubbleId of bubbleOrder) {
+          if (isBubbleEnabled(bubbleId) && bubbleData[bubbleId]) {
+            const bubble = bubbleData[bubbleId]
+            addSegment(bubble.text, bubble.icon, bubble.color)
+          }
         }
       }
     }
