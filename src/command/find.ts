@@ -1,4 +1,4 @@
-import type {GlobalArgs} from '../cli.ts'
+import type {GlobalArgs} from '../makeCli.ts'
 import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
 import Context from '../Context.ts'

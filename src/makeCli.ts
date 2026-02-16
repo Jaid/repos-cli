@@ -1,5 +1,4 @@
 import type {YargsArgs} from 'lib/YargsArgs.ts'
-import type {FirstParameter} from 'more-types'
 
 import os from 'node:os'
 
@@ -79,7 +78,7 @@ const globalOptions = {
   },
 }
 
-export default (additionalOptions: FirstParameter<typeof makeCli> = {}) => {
+export default (additionalOptions: Parameters<typeof makeCli>[0] = {}) => {
   return makeCli({
     command: [
       listCommand,

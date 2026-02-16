@@ -12,6 +12,11 @@ export type Source = {
 
 export type SourceInput = Source | string
 
+export type Options = {
+  cwd: string
+  deepSources?: Array<string>
+}
+
 export class Match {
   repo: Repo
   source: Source
@@ -19,11 +24,6 @@ export class Match {
     this.source = source
     this.repo = repo
   }
-}
-
-export type Options = {
-  cwd: string
-  deepSources?: Array<string>
 }
 
 export class LocalFinder {

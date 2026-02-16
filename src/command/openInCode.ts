@@ -1,7 +1,5 @@
-import type {GlobalArgs} from '../cli.ts'
+import type {GlobalArgs} from '../makeCli.ts'
 import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
-
-import {execa} from 'execa'
 
 import Context from '../Context.ts'
 
@@ -30,8 +28,10 @@ export const handler = async (args: GlobalArgs & Args) => {
     return
   }
   const codeArgs = ['--new-window', '--goto', repo.asFolder()]
-  const execaResult = await execa(args.codePath, codeArgs, {
-    stdio: 'inherit',
+  const fullCommand = [args.codePath, ...codeArgs]
+  console.log(fullCommand.join(' '))
+  const proc = Bun.spawn(fullCommand, {
+    stdio: ['inherit', 'inherit', 'inherit'],
   })
-  console.log(execaResult.escapedCommand)
+  await proc.exited
 }

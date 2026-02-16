@@ -1,4 +1,4 @@
-import type {GlobalArgs} from '../cli.ts'
+import type {GlobalArgs} from '../makeCli.ts'
 import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
 import Context from '../Context.ts'
@@ -55,9 +55,9 @@ export const handler = async (args: GlobalArgs & Args) => {
       // If not counted yet and it's in the main repos folder, count it for main user
       if (!counted && githubUser && folderPath.startsWith(context.reposFolder)) {
         const isInAltFolder = folderPath.includes('/.as/') || folderPath.includes('\\.as\\')
-        const isInFork = folderPath.includes('/.fork') || folderPath.includes('\\.fork')
-        const isInGist = folderPath.includes('/.gist') || folderPath.includes('\\.gist')
-        const isInForeign = folderPath.includes('/.foreign') || folderPath.includes('\\.foreign')
+        const isInFork = folderPath.includes('/.fork') || folderPath.includes(String.raw`\.fork`)
+        const isInGist = folderPath.includes('/.gist') || folderPath.includes(String.raw`\.gist`)
+        const isInForeign = folderPath.includes('/.foreign') || folderPath.includes(String.raw`\.foreign`)
         if (!isInAltFolder && !isInFork && !isInGist && !isInForeign) {
           accounts.set(githubUser, accounts.get(githubUser)! + 1)
         }

@@ -2,7 +2,6 @@ import type {GlobalArgs} from '../makeCli.ts'
 import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
 import getFolderSize from 'get-folder-size'
-import * as lodash from 'lodash-es'
 
 import {chalk, makeBubble} from 'lib/chalk.ts'
 import {desplit} from 'lib/desplit.ts'
@@ -53,7 +52,6 @@ export const handler = async (args: GlobalArgs & Args) => {
   const finder = LocalFinder.fromSources(sources)
   const matches = await finder.getAllMatches()
   const needsGitStatus = args.extended || args.onlyDirty || args.onlyUnsync
-  const useBubbles = true
   let enabledBubbles: Array<string> | 'all' = 'all'
   if (typeof args.extended === 'string') {
     enabledBubbles = desplit(args.extended)
@@ -74,11 +72,6 @@ export const handler = async (args: GlobalArgs & Args) => {
         const text = icon ? `${icon} ${segment}` : segment
         if (!color) {
           addSegment(text, icon, 0)
-          return
-        }
-        if (!useBubbles) {
-          process.stdout.write(' | ')
-          process.stdout.write(chalk.ansi256(color)(text))
           return
         }
         process.stdout.write(' ')
@@ -107,7 +100,7 @@ export const handler = async (args: GlobalArgs & Args) => {
             icon: '󰜷',
             color: 85,
           } : null,
-          conflicts: !lodash.isEmpty(status.conflicted) ? {
+          conflicts: status.conflicted.length > 0 ? {
             text: String(status.conflicted.length),
             icon: '󰞇',
             color: 160,

@@ -63,18 +63,15 @@ export class Repo {
   }
   get owner() {
     this.expectRemote()
-    // @ts-expect-error
-    return this.githubRepo.owner.login
+    return this.githubRepo!.owner.login
   }
   get remoteName() {
     this.expectRemote()
-    // @ts-expect-error
-    return this.githubRepo.name
+    return this.githubRepo!.name
   }
   asFolder() {
     this.expectLocal()
-    // @ts-expect-error
-    return path.join(this.parentFolder, this.folderName)
+    return path.join(this.parentFolder!, this.folderName!)
   }
   asSlug() {
     this.expectRemote()
@@ -86,9 +83,8 @@ export class Repo {
     const targetFolder = path.join(parentFolder, name)
     await fs.mkdirp(parentFolder)
     const git = simpleGit()
-    const urlProperty = useHttps ? 'clone_url' : 'ssh_url'
-    // @ts-expect-error
-    await git.clone(this.githubRepo[urlProperty], targetFolder)
+    const url = useHttps ? this.githubRepo!.clone_url : this.githubRepo!.ssh_url
+    await git.clone(url, targetFolder)
     this.declareLocal(parentFolder, name)
   }
   declareLocal(parentFolder: string, folderName: string) {
@@ -136,8 +132,7 @@ export class Repo {
     if (!parent) {
       return
     }
-    // @ts-expect-error
-    return `${parent.owner.login}:${parent.default_branch}...${this.githubRepo.owner.login}:${this.githubRepo.default_branch}`
+    return `${parent.owner.login}:${parent.default_branch}...${this.githubRepo!.owner.login}:${this.githubRepo!.default_branch}`
   }
   async getFetchUrl() {
     this.expectLocal()
@@ -155,7 +150,7 @@ export class Repo {
     if (!fetchUrl) {
       return
     }
-    const githubExpressionMatch = firstMatch(githubExpression, fetchUrl) as GithubMatch
+    const githubExpressionMatch = firstMatch(githubExpression, fetchUrl) as GithubMatch | undefined
     if (!githubExpressionMatch) {
       return
     }
@@ -163,18 +158,14 @@ export class Repo {
   }
   getGithubUrl(): string | undefined {
     if (this.isRemote()) {
-      // @ts-expect-error
-      return this.githubRepo.html_url
+      return this.githubRepo!.html_url
     }
-    // For local repos, construct URL from slug if available
-    return
   }
   getParent() {
     if (!this.isFork()) {
       return
     }
-    // @ts-expect-error
-    return this.githubRepo.parent
+    return this.githubRepo!.parent
   }
   getSimpleGit() {
     this.expectLocal()
@@ -182,8 +173,7 @@ export class Repo {
   }
   isFork() {
     this.expectRemote()
-    // @ts-expect-error
-    return this.githubRepo.fork
+    return this.githubRepo!.fork
   }
   isLocal() {
     return Boolean(this.parentFolder)

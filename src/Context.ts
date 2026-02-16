@@ -1,4 +1,5 @@
 import type {GlobalArgs} from './makeCli.ts'
+import type {Match, SourceInput} from 'src/LocalFinder.ts'
 import type {Merge} from 'type-fest'
 
 import * as path from 'forward-slash-path'
@@ -6,13 +7,8 @@ import {globby} from 'globby'
 import readFileYaml from 'read-file-yaml'
 
 import {ExtendedOctokit} from 'src/ExtendedOctokit.ts'
-import {LocalFinder, type Match, type SourceInput} from 'src/LocalFinder.ts'
+import {LocalFinder} from 'src/LocalFinder.ts'
 import {Repo} from 'src/Repo.ts'
-
-type CommonResult = {
-  repo: Repo
-  source: Source
-}
 
 export const enum Source {
   Local,
@@ -23,10 +19,10 @@ export type LocalResult = Merge<CommonResult, {
   match: Match
   source: Source.Local
 }>
+
 export type GithubResult = Merge<CommonResult, {
   source: Source.Github
 }>
-
 export type Result = GithubResult | LocalResult
 
 export type Options = GlobalArgs & {
@@ -35,6 +31,11 @@ export type Options = GlobalArgs & {
 
 export type Config = {
   sources?: Array<SourceInput>
+}
+
+type CommonResult = {
+  repo: Repo
+  source: Source
 }
 
 export default class Context {
@@ -67,7 +68,7 @@ export default class Context {
     return process.env.GITHUB_TOKEN
   }
   get githubUser() {
-    return this.options.githubUser ?? this.#octokitUser
+    return this.options.githubUser || this.#octokitUser
   }
   get reposFolder() {
     return this.options.reposFolder

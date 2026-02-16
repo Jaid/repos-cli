@@ -58,7 +58,7 @@ export class ExtendedOctokit extends Octokit {
       }, response => {
         return response.data
       })
-      // @ts-expect-error
+      // @ts-expect-error TS2322 paginate return type is not exactly Array<RepoData>
       return remoteRepoNames
     }
     if (!githubUser) {
@@ -70,7 +70,7 @@ export class ExtendedOctokit extends Octokit {
     }, response => {
       return response.data
     })
-    // @ts-expect-error
+    // @ts-expect-error TS2322 paginate return type is not exactly Array<RepoData>
     return remoteRepoNames
   }
 }
