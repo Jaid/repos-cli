@@ -1,13 +1,13 @@
-import type {GlobalArgs} from './makeCli.js'
+import type {GlobalArgs} from './makeCli.ts'
 import type {Merge} from 'type-fest'
 
 import * as path from 'forward-slash-path'
 import {globby} from 'globby'
 import readFileYaml from 'read-file-yaml'
 
-import {ExtendedOctokit} from 'src/ExtendedOctokit.js'
-import {LocalFinder, type Match, type SourceInput} from 'src/LocalFinder.js'
-import {Repo} from 'src/Repo.js'
+import {ExtendedOctokit} from 'src/ExtendedOctokit.ts'
+import {LocalFinder, type Match, type SourceInput} from 'src/LocalFinder.ts'
+import {Repo} from 'src/Repo.ts'
 
 type CommonResult = {
   repo: Repo

@@ -1,9 +1,9 @@
 import * as path from 'forward-slash-path'
 import {convertPathToPattern, globbyStream, isDynamicPattern} from 'globby'
 
-import {isGitFolder} from 'lib/isGitFolder.js'
+import {isGitFolder} from 'lib/isGitFolder.ts'
 
-import {Repo} from './Repo.js'
+import {Repo} from './Repo.ts'
 
 export type Source = {
   input: string

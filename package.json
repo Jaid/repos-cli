@@ -15,8 +15,7 @@
   "scripts": {
     "linkConfigFolder": "if [[ ! -d private ]]; then mkdir private && echo '*' > private/.gitignore; fi && lnfs $HOME/.config/$npm_package_name private/config",
     "start": "bun src/cli.ts",
-    "startList": "bun src/cli.ts -- list",
-    "test": "bun test ./test",
+    "test": "bun test ./test"
   },
   "dependencies": {
     "@octokit/rest": "^22.0.0",

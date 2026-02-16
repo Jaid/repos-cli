@@ -1,10 +1,10 @@
-import type {GlobalArgs} from '../cli.js'
-import type {RepoData} from 'src/ExtendedOctokit.js'
+import type {GlobalArgs} from '../cli.ts'
+import type {RepoData} from 'src/ExtendedOctokit.ts'
 import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
-import {chalkifyPath} from 'lib/chalk.js'
+import {chalkifyPath} from 'lib/chalk.ts'
 
-import Context from '../Context.js'
+import Context from '../Context.ts'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
 

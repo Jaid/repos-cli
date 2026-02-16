@@ -1,4 +1,4 @@
-import type {YargsArgs} from 'lib/YargsArgs.js'
+import type {YargsArgs} from 'lib/YargsArgs.ts'
 import type {FirstParameter} from 'more-types'
 
 import os from 'node:os'
@@ -6,15 +6,15 @@ import os from 'node:os'
 import * as path from 'forward-slash-path'
 import {makeCli} from 'zeug'
 
-import {defaultReposFolder} from 'lib/defaultReposFolder.js'
+import {defaultReposFolder} from 'lib/defaultReposFolder.ts'
 
-import * as findCommand from './command/find.js'
-import * as goCommand from './command/go.js'
-import * as listCommand from './command/list.js'
-import * as listAccountsCommand from './command/listAccounts.js'
-import * as listRemoteCommand from './command/listRemote.js'
-import * as listSourcesCommand from './command/listSources.js'
-import * as openInCodeCommand from './command/openInCode.js'
+import * as findCommand from './command/find.ts'
+import * as goCommand from './command/go.ts'
+import * as listCommand from './command/list.ts'
+import * as listAccountsCommand from './command/listAccounts.ts'
+import * as listRemoteCommand from './command/listRemote.ts'
+import * as listSourcesCommand from './command/listSources.ts'
+import * as openInCodeCommand from './command/openInCode.ts'
 
 export type GlobalArgs = YargsArgs<typeof globalOptions>
 const coerceStringArray = (input?: Array<string>) => {

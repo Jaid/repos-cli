@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import fs from 'fs-extra'
 
-import Context from '../src/Context.js'
+import Context from '../src/Context.ts'
 
 describe('Alt accounts', () => {
   let temporaryFolder: string

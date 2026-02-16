@@ -1,5 +1,5 @@
-import type {RepoData} from './ExtendedOctokit.js'
-import type {MatchFromKeys} from 'lib/superRegexTypes.js'
+import type {RepoData} from './ExtendedOctokit.ts'
+import type {MatchFromKeys} from 'lib/superRegexTypes.ts'
 import type {RemoteWithRefs} from 'simple-git'
 
 import * as path from 'forward-slash-path'
@@ -7,7 +7,7 @@ import fs from 'fs-extra'
 import {simpleGit} from 'simple-git'
 import {firstMatch} from 'super-regex'
 
-import {chalkifyPath} from '../lib/chalk.js'
+import {chalkifyPath} from '../lib/chalk.ts'
 
 export type GithubExpressionMatch = {
   owner: string

@@ -1,9 +1,9 @@
-import type {GlobalArgs} from '../cli.js'
+import type {GlobalArgs} from '../cli.ts'
 import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
 import {execa} from 'execa'
 
-import Context from '../Context.js'
+import Context from '../Context.ts'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
 

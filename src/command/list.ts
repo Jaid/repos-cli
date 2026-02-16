@@ -1,15 +1,15 @@
-import type {GlobalArgs} from '../cli.js'
+import type {GlobalArgs} from '../makeCli.ts'
 import type {ArgumentsCamelCase, Argv, CommandBuilder} from 'yargs'
 
 import getFolderSize from 'get-folder-size'
 import * as lodash from 'lodash-es'
 
-import {chalk, makeBubble} from 'lib/chalk.js'
-import {desplit} from 'lib/desplit.js'
+import {chalk, makeBubble} from 'lib/chalk.ts'
+import {desplit} from 'lib/desplit.ts'
 
-import Context from '../Context.js'
-import {LocalFinder} from '../LocalFinder.js'
-import {Repo} from '../Repo.js'
+import Context from '../Context.ts'
+import {LocalFinder} from '../LocalFinder.ts'
+import {Repo} from '../Repo.ts'
 
 export type Args = (typeof builder) extends CommandBuilder<any, infer U> ? ArgumentsCamelCase<U> : never
 
@@ -54,7 +54,6 @@ export const handler = async (args: GlobalArgs & Args) => {
   const matches = await finder.getAllMatches()
   const needsGitStatus = args.extended || args.onlyDirty || args.onlyUnsync
   const useBubbles = true
-  // Parse extended option
   let enabledBubbles: Array<string> | 'all' = 'all'
   if (typeof args.extended === 'string') {
     enabledBubbles = desplit(args.extended)
@@ -95,7 +94,6 @@ export const handler = async (args: GlobalArgs & Args) => {
         continue
       }
       if (args.extended) {
-        // Calculate all bubble data
         const bubbleData: Record<string, {color: number
           icon?: string
           text: string} | null> = {
@@ -128,7 +126,6 @@ export const handler = async (args: GlobalArgs & Args) => {
           large: null,
           'fork-behind': null,
         }
-        // Check inactive
         if (repo.githubRepo?.pushed_at) {
           const lastPushDate = new Date(repo.githubRepo.pushed_at)
           const now = new Date
@@ -142,7 +139,6 @@ export const handler = async (args: GlobalArgs & Args) => {
             }
           }
         }
-        // Check large
         const repoFolder = repo.asFolder()
         if (repoFolder) {
           const folderSize = await getFolderSize.loose(repoFolder)
@@ -155,7 +151,6 @@ export const handler = async (args: GlobalArgs & Args) => {
             }
           }
         }
-        // Check fork-behind
         const getCommitsBehindCount = async () => {
           const githubSlug = await repo.getGithubSlug()
           if (!githubSlug) {
@@ -190,7 +185,6 @@ export const handler = async (args: GlobalArgs & Args) => {
             color: 81,
           }
         }
-        // Display bubbles in order
         const bubbleOrder = enabledBubbles === 'all' ? ['behind', 'ahead', 'conflicts', 'modified', 'archived', 'inactive', 'large', 'fork-behind'] : enabledBubbles
         for (const bubbleId of bubbleOrder) {
           if (isBubbleEnabled(bubbleId) && bubbleData[bubbleId]) {

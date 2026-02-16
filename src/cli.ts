@@ -1,4 +1,4 @@
-import makeCli from 'src/makeCli.js'
+import makeCli from 'src/makeCli.ts'
 
 const cli = makeCli()
 await cli()
